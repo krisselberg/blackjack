@@ -82,7 +82,7 @@ class Hand:
                 number_of_aces += 1
             hand_value += card.value
 
-        if number_of_aces > 0 and hand_value > 21:
+        while number_of_aces > 0 and hand_value > 21:
             hand_value -= 10
             number_of_aces -= 1
 
