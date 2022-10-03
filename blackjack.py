@@ -50,7 +50,7 @@ def set_player_bet(player):
         if bet_amount < MIN_BET_AMOUNT or bet_amount > MAX_BET_AMOUNT:
             print(
                 "Invalid bet {}. Please enter a bet in the range of [{}, {}]".format(
-                    bet_amount, min(MIN_BET_AMOUNT, MAX_BET_AMOUNT)
+                    bet_amount, MIN_BET_AMOUNT, MAX_BET_AMOUNT
                 )
             )
             continue
