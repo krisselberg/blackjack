@@ -1,6 +1,6 @@
 from time import sleep
 from math import floor
-from classes import Deck, Hand, Player
+from classes import Card, Deck, Hand, Player
 
 
 def get_number_of_players():
@@ -103,11 +103,11 @@ def pairsplit(player, player_hand, dealer, deck):
     player.hands.append(split_hand)
 
     if player_hand.cards[0].rank == "Ace":
-        player_hand.cards.append(deck.draw_card())
-        split_hand.cards.append(deck.draw_card())
-        split_hand.is_ace_split_hand = (
-            True  # fixes corner case of allowing player to take action on split hand
-        )
+        player_hand.hit(deck)
+        split_hand.hit(deck)
+        # fixes corner case of allowing player to take action on split hand
+        player_hand.is_ace_split_hand = True
+        split_hand.is_ace_split_hand = True  
 
         print("You have been given two cards face down (one for each split hand).\n")
         print("-----------------\n")
@@ -140,7 +140,15 @@ def get_player_action(player, player_hand, dealer, deck):
 
         possible_player_actions = ["h", "s"]
 
-        if can_double_down(player_hand, player):
+        if can_double_down(player_hand, player) and can_pair_split(
+            player_hand, player
+        ):
+            player_action = input(
+                "\nWould you like to hit, stand, double down, or pair split? (Type 'h' for hit, 's' for stand, 'd' for double down, or 'p' for pair split) "
+            )
+            possible_player_actions.append("p")
+            possible_player_actions.append("d")
+        elif can_double_down(player_hand, player):
             player_action = input(
                 "\nWould you like to hit, stand, or double down? (Type 'h' for hit, 's' for stand, or 'd' for double down) "
             )
@@ -150,14 +158,6 @@ def get_player_action(player, player_hand, dealer, deck):
                 "\nWould you like to hit, stand, or pair split? (Type 'h' for hit, 's' for stand, or 'p' for pair split) "
             )
             possible_player_actions.append("p")
-        elif can_double_down(player_hand, player) and can_pair_split(
-            player_hand, player
-        ):
-            player_action = input(
-                "\nWould you like to hit, stand, double down, or pair split? (Type 'h' for hit, 's' for stand, 'd' for double down, or 'p' for pair split) "
-            )
-            possible_player_actions.append("p")
-            possible_player_actions.append("d")
         else:
             player_action = input(
                 "\nWould you like to hit or stand? (Type 'h' for hit and 's' for stand) "
@@ -254,13 +254,12 @@ def payout_bets(dealer_hand_value, players, round):
             dealer_is_busted = dealer_hand_value > 21
 
             if player_has_blackjack:
-                # a player with blackjack in a split hand does not
-                # receive the blackjack multiplier payout
-                is_split_hand = len(player.hands) > 1
-                if is_split_hand:
+                # a player with blackjack in a split hand with aces as the first card 
+                # do not receive the blackjack multiplier payout
+                if player_hand.is_ace_split_hand:
                     player_round_winnings += 2 * player_hand.bet
                     player_hand.show()
-                    print("{}'s split hand beat the dealer".format(player.name))
+                    print("{}'s split hand with aces beat the dealer and got blackjack! Payoff is equal to the bet.".format(player.name))
                     sleep(2)
                 else:
                     player_round_winnings += floor(
