@@ -1,6 +1,6 @@
 from time import sleep
 from math import floor
-from classes import Card, Deck, Hand, Player
+from classes import Deck, Hand, Player
 
 
 def get_number_of_players():
